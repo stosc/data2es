@@ -1,4 +1,0 @@
-[console_scripts]
-data2esb = pack.main:run
-data2esd = pack.maind:run
-

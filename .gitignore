@@ -5,3 +5,10 @@ __pycache__
 test.py
 .idea
 .log
+build
+build/*
+dist
+dist/*
+*.egg-info
+*.egg-info/*
+

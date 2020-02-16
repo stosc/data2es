@@ -98,6 +98,7 @@ output:{ #elasticsearch服务器和index的配置
 webhook:{#有两种事件，一个是开始执行一次任务，一个是任务完成,如果指定了url那么在事件发生时会通知到这两个地址
   start=""
   finished=""
+  error=""
 }
 
 ```

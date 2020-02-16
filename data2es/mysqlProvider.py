@@ -10,8 +10,10 @@
 import pymysql
 from datetime import datetime
 
-
-from providerBase import ProviderBase
+try:
+    from providerBase import ProviderBase
+except ModuleNotFoundError:
+    from data2es.providerBase import ProviderBase   
 
 
 class MysqlProvider(ProviderBase):

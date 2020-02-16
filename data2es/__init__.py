@@ -9,7 +9,7 @@
 #############################################
 __all__ = ['maind', 'main']
 __title__ = 'data2es'
-__version__ = '0.0.1'
+__version__ = '0.0.3'
 __author__ = 'stosc lee'
 __copyright__ = 'Copyright 2020 stosc lee'
 __serverName__ = 'data2esb'

@@ -31,10 +31,10 @@ pip install data2es
 ## 启动
 
 ```shell
-data2esd start -c 'config.conf' -l 'log.log'
+data2esd start -c 'config.conf'
 ```
 
-其中config是必须指定的，log文件可以不指定
+其中config是必须指定的
 
 ## 停止
 

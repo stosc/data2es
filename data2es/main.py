@@ -18,13 +18,22 @@ import signal
 import traceback
 
 from pyhocon import ConfigFactory
-from webhook import WebhookClient,WebhookServer
 
-from mysqlProvider import MysqlProvider
-from providerBase import ProviderBase
-from esHelper import EsHelper
-from scheduler import SdxScheduler
-from __init__ import __serverName__
+
+try:
+    from webhook import WebhookClient,WebhookServer
+    from mysqlProvider import MysqlProvider
+    from providerBase import ProviderBase
+    from esHelper import EsHelper
+    from scheduler import SdxScheduler
+    from __init__ import __serverName__
+except ModuleNotFoundError:
+    from data2es.webhook import WebhookClient,WebhookServer
+    from data2es.mysqlProvider import MysqlProvider
+    from data2es.providerBase import ProviderBase
+    from data2es.esHelper import EsHelper
+    from data2es.scheduler import SdxScheduler
+    from data2es.__init__ import __serverName__
 
 
 
@@ -52,7 +61,8 @@ class Data2es(object):
             outputs = conf.get_config('output')
             webhook = conf.get_config('webhook')
             self.start_urls = webhook.get_list('start')
-            self.finished_urls=webhook.get_list('start')
+            self.finished_urls=webhook.get_list('finished')
+            self.error_urls=webhook.get_list('error')
             for i in inputs:
                 c = inputs[i]
                 provider = c['provider']            
@@ -90,21 +100,26 @@ class Data2es(object):
             sys.exit()
 
     def transmit_data(self):
-        logger.info('start data transmission.')
-        start_id = self.data_provider.lastId
-        for url in self.start_urls:
-            WebhookClient.sendStart(url,start_id)
-        while(True):            
-            datas,sql = self.data_provider.getData()  
-            if len(datas) > 0:          
-                self.es.saveData(self.index_name,datas,self.document_id)
-                self.data_provider.saveId()
-                logger.info(sql)
-            else:
-                logger.info('data transmission finished.')
-                for url in self.finished_urls:
-                    WebhookClient.sendFinished(url,start_id,elf.data_provider.lastId)
-                return
+        try:
+            logger.info('start data transmission.')
+            start_id = self.data_provider.lastId
+            for url in self.start_urls:
+                WebhookClient.sendStart(url,start_id)
+            while(True):            
+                datas,sql = self.data_provider.getData()  
+                if len(datas) > 0:          
+                    self.es.saveData(self.index_name,datas,self.document_id)
+                    self.data_provider.saveId()
+                    logger.info(sql)
+                else:
+                    logger.info('data transmission finished.')
+                    for url in self.finished_urls:
+                        WebhookClient.sendFinished(url,start_id,self.data_provider.lastId)
+                    return
+        except Exception as e:
+            for url in self.error_urls:
+                WebhookClient.sendFinished(url, e, self.data_provider.lastId)
+        
     
     def run(self):
         if self.trigger == 'schedule':

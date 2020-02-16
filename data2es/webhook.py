@@ -50,24 +50,36 @@ class WebhookClient(object):
 
     @staticmethod
     def sendFinished(url,start,end):
-        
-        url=url
         program={
             "msgtype": "text",
             "text": {"content": "[%s] 完成数据从 [ %s ] 到 [ %s ] 的同步。" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),start,end)},
         }
-        headers={'Content-Type': 'application/json'}
-        f=requests.post(url,data=json.dumps(program),headers=headers)
+        _sendStart(url,program)
 
     @staticmethod
     def sendStart(url,start):
-        url=url
         program={
             "msgtype": "text",
             "text": {"content": "[%s] 从第 [ %s ] 开始同步数据。" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),start)},
         }
+        _sendStart(url,program)
+
+    @staticmethod
+    def sendError(url,errMas,id):
+        program={
+            "msgtype": "text",
+            "text": {"content": "[%s] 同步到 [%s] 发生 [错误] %s。" %(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),id,errMas)},
+        }
+        _sendStart(url,program)
+
+
+    @staticmethod
+    def _sendStart(url,content):
         headers={'Content-Type': 'application/json'}
-        f=requests.post(url,data=json.dumps(program),headers=headers)
+        f=requests.post(url,data=json.dumps(content),headers=headers)
+
+
+    
 
 
 if __name__ == "__main__":

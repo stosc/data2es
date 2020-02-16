@@ -18,19 +18,22 @@ import _thread
 
 import logging
 import logging.handlers
-from daemon import runner
 
-from myDaemon import Daemon
-
-import main
-from __init__ import __daemonName__, __serverName__
+try:
+    from data2es.myDaemon import Daemon
+    from data2es.main import *
+    from data2es import __daemonName__, __serverName__
+except ModuleNotFoundError:
+    from myDaemon import Daemon
+    from main import  *
+    from __init__ import __daemonName__, __serverName__    
 
 
 
 class D2esServiceDaemon(Daemon):
     def run(self, args):        
         sys.stdout.write('Daemon started with pid %s \n' % (os.getpid()))               
-        main.runData2es(args[1],self.splitLogFile)
+        runData2es(args[1],self.splitLogFile)
     def stop(self):
         super(D2esServiceDaemon, self).stop()
 
@@ -65,7 +68,7 @@ def run():
     if runCmd == rca[0]:
         config = args.config
         if config == None:
-            mian.logger.error('when start must specify configuration file path use -c/--config.')
+            logger.error('when start must specify configuration file path use -c/--config.')
             sys.exit(-1)
         else:
             print('The log file is %s'%os.path.abspath(LOG))                       
